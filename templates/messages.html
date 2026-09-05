@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Messages</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 70%;
+            margin: 20px auto;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 8px;
+        }
+        th {
+            background: #eee;
+        }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Messages Table</h2>
+
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Message</th>
+        </tr>
+
+        {% for name, email, message in messages %}
+        <tr>
+            <td>{{ name }}</td>
+            <td>{{ email }}</td>
+            <td>{{ message }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
