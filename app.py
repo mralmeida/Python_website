@@ -61,6 +61,42 @@ def messages():
     return render_template("messages.html", messages=data)
 
 # ---------------------------------------------------------
+#---to insert data onto messages table
+import csv
+import sqlite3
+from flask import Flask, render_template, request
+
+@app.route("/import-csv", methods=["GET", "POST"])
+def import_csv():
+
+    if request.method == "POST":
+
+        file = request.files["csvfile"]
+
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+
+        csv_reader = csv.DictReader(
+            file.stream.read().decode("utf-8").splitlines()
+        )
+
+        for row in csv_reader:
+            cursor.execute("""
+                INSERT INTO messages (name, email, message)
+                VALUES (?, ?, ?)
+            """, (
+                row["name"],
+                row["email"],
+                row["message"]
+            ))
+
+        conn.commit()
+        conn.close()
+
+        return "CSV imported successfully!"
+
+    return render_template("import_csv.html")
+#-----
 
 if __name__ == "__main__":
     init_db()
