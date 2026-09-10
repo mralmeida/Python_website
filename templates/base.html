@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+</head>
+<body>
+
+    {% include "menu.html" %}
+
+    <div style="margin-top:20px;">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+</body>
+</html>

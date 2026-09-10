@@ -1,39 +1,32 @@
-<!DOCTYPE html>
-<html lang="">
-<head>
-    <title>Messages</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 70%;
-            margin: 20px auto;
-        }
-        th, td {
-            border: 1px solid #444;
-            padding: 8px;
-        }
-        th {
-            background: #eee;
-        }
-    </style>
-</head>
-<body>
-    <h2 style="text-align:center;">Messages Table</h2>
+{% extends "base.html" %}
+{% block content %}
 
-    <table>
+<form method="POST" action="/delete-messages">
+    <h2>{{ count }} Messages recovered</h2>
+    <table border="1" cellpadding="6">
         <tr>
+            <th>Delete?</th>
+            <!--<th>ID</th>-->
             <th>Name</th>
             <th>Email</th>
             <th>Message</th>
         </tr>
 
-        {% for name, email, message in messages %}
+        {% for msg in messages %}
         <tr>
-            <td>{{ name }}</td>
-            <td>{{ email }}</td>
-            <td>{{ message }}</td>
+            <td>
+                <input type="checkbox" name="delete_ids" value="{{ msg[0] }}">
+            </td>
+            <!--<td>{{ msg[0] }}</td>-->
+            <td>{{ msg[1] }}</td>
+            <td><a href="mailto:{{ msg[2] }}">{{ msg[2] }}</a></td>
+            <td>{{ msg[3] }}</td>
         </tr>
         {% endfor %}
     </table>
-</body>
-</html>
+
+    <p>
+        <button type="submit">Delete Selected</button>
+    </p>
+</form>
+{% endblock %}

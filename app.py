@@ -2,6 +2,7 @@ from flask import Flask, render_template
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
+from flask import Flask, render_template, request, redirect
 import sqlite3
 
 app = Flask(__name__)
@@ -34,31 +35,63 @@ class ContactForm(FlaskForm):
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
     form = ContactForm()
+
     if form.validate_on_submit():
+        name = form.name.data
+        email = form.email.data
+        message = form.message.data
+
+        # Insert into SQLite
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO messages (name, email, message)
+            VALUES (?, ?, ?)
+        """, (name, email, message))
+        conn.commit()
+        conn.close()
+
         return render_template(
             "contact_result.html",
-            name=form.name.data,
-            email=form.email.data,
-            message=form.message.data
+            name=name,
+            email=email,
+            message=message
         )
-    return render_template("contact_form.html", form=form)
 
-# ---------------------------------------------------------
-# ✅ INSERT THIS PART HERE — your new messages table route
-# ---------------------------------------------------------
+    return render_template("contact_form.html", form=form)
 
 def get_messages():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT name, email, message FROM messages")
+    cursor.execute("SELECT id, name, email, message FROM messages")
     rows = cursor.fetchall()
     conn.close()
     return rows
 
+
 @app.route("/messages")
 def messages():
     data = get_messages()
-    return render_template("messages.html", messages=data)
+    count = len(data)
+    return render_template("messages.html", messages=data, count=count)
+
+# --------------------------------------------------------
+# --to delete all selected records
+@app.route("/delete-messages", methods=["POST"])
+def delete_messages():
+    ids = request.form.getlist("delete_ids")
+
+    if ids:
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+
+        for message_id in ids:
+            cursor.execute("DELETE FROM messages WHERE id = ?", (message_id,))
+
+        conn.commit()
+        conn.close()
+
+    return redirect("/messages")
 
 # ---------------------------------------------------------
 #---to insert data onto messages table
@@ -68,6 +101,7 @@ from flask import Flask, render_template, request
 
 @app.route("/import-csv", methods=["GET", "POST"])
 def import_csv():
+    #import pdb; pdb.set_trace()  # debugger stops here
 
     if request.method == "POST":
 
@@ -76,9 +110,7 @@ def import_csv():
         conn = sqlite3.connect("database.db")
         cursor = conn.cursor()
 
-        csv_reader = csv.DictReader(
-            file.stream.read().decode("utf-8").splitlines()
-        )
+        csv_reader = csv.DictReader(file.stream.read().decode("utf-8").splitlines())
 
         for row in csv_reader:
             cursor.execute("""
@@ -97,6 +129,7 @@ def import_csv():
 
     return render_template("import_csv.html")
 #-----
+
 
 if __name__ == "__main__":
     init_db()

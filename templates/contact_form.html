@@ -1,10 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block content %}
+    <h2>Contact Form</h2>
 
-</body>
-</html>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <p>
+            {{ form.name.label }}<br>
+            {{ form.name(size=40) }}
+        </p>
+
+        <p>
+            {{ form.email.label }}<br>
+            {{ form.email(size=40) }}
+        </p>
+
+        <p>
+            {{ form.message.label }}<br>
+            {{ form.message(size=60) }}
+        </p>
+
+        <p>{{ form.submit() }}</p>
+    </form>
+ {% endblock %}
