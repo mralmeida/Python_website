@@ -10,6 +10,7 @@
             <th>Name</th>
             <th>Email</th>
             <th>Message</th>
+            <th>Action</th>
         </tr>
 
         {% for msg in messages %}
@@ -21,6 +22,7 @@
             <td>{{ msg[1] }}</td>
             <td><a href="mailto:{{ msg[2] }}">{{ msg[2] }}</a></td>
             <td>{{ msg[3] }}</td>
+            <td><a href="/edit/{{ msg[0] }}"> <button type="button">Edit</button> </a></td>
         </tr>
         {% endfor %}
     </table>

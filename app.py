@@ -129,7 +129,56 @@ def import_csv():
 
     return render_template("import_csv.html")
 #-----
+# ---------------------------------------------------------------------
+# --- To edit the selected record
+@app.route("/edit/<int:message_id>", methods=["GET", "POST"])
+def edit_message(message_id):
 
+    form = ContactForm()
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    if request.method == "GET":
+
+        cursor.execute("""
+            SELECT name, email, message
+            FROM messages
+            WHERE id = ?
+        """, (message_id,))
+
+        record = cursor.fetchone()
+
+        if record:
+            form.name.data = record[0]
+            form.email.data = record[1]
+            form.message.data = record[2]
+
+    if form.validate_on_submit():
+
+        cursor.execute("""
+            UPDATE messages
+            SET name = ?, email = ?, message = ?
+            WHERE id = ?
+        """, (
+            form.name.data,
+            form.email.data,
+            form.message.data,
+            message_id
+        ))
+
+        conn.commit()
+        conn.close()
+        form.submit.label.text = "Save Changes"
+        return redirect("/messages")
+
+    conn.close()
+
+    return render_template(
+        "contact_form.html",
+        form=form,
+        edit_mode=True
+    )
 
 if __name__ == "__main__":
     init_db()
