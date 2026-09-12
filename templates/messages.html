@@ -28,7 +28,33 @@
     </table>
 
     <p>
-        <button type="submit">Delete Selected</button>
+        <!--<button type="submit">Delete Selected</button>-->
+        <button type="submit" id="deleteButton" disabled>Delete Selected</button>
     </p>
 </form>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    const checkboxes = document.querySelectorAll(
+        'input[name="delete_ids"]'
+    );
+
+    const deleteButton = document.getElementById("deleteButton");
+
+    function updateButtonState() {
+        const checked = document.querySelectorAll(
+            'input[name="delete_ids"]:checked'
+        );
+
+        deleteButton.disabled = checked.length === 0;
+    }
+
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener("change", updateButtonState);
+    });
+
+    updateButtonState();
+});
+</script>
+
 {% endblock %}

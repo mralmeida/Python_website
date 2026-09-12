@@ -6,18 +6,17 @@
         {{ form.hidden_tag() }}
 
         <p>
-            {{ form.name.label }}<br>
-            {{ form.name(size=40) }}
+            {{ form.name.label }}
+            {{ form.name(size=40) }} {% for error in form.name.errors %} {{ error }} {% endfor %}
         </p>
 
         <p>
-            {{ form.email.label }}<br>
-            {{ form.email(size=40) }}
+            {{ form.email.label }}
+            {{ form.email(size=40) }} {% for error in form.email.errors %} {{ error }} {% endfor %}
         </p>
 
         <p>
-            {{ form.message.label }}<br>
-            {{ form.message(size=60) }}
+            {{ form.message() }} {% for error in form.message.errors %} {{ error }} {% endfor %}
         </p>
 
         <p>{{ form.submit() }}</p>

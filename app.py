@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms import StringField, TextAreaField, SubmitField
+from wtforms.validators import DataRequired, Email
 from flask import Flask, render_template, request, redirect
 import sqlite3
 
@@ -21,15 +21,29 @@ def init_db():
     """)
     conn.commit()
     conn.close()
-
 @app.route("/")
 def home():
-    return "Hello Mr. Xups — your Python website is running, now with SQLite database!"
+    return redirect("/messages")
 
 class ContactForm(FlaskForm):
-    name = StringField("Your name", validators=[DataRequired()])
-    email = StringField("Email address", validators=[DataRequired()])
-    message = StringField("Message", validators=[DataRequired()])
+    name = StringField(
+        "Your name",
+        validators=[DataRequired(message="Name is required.")]
+    )
+
+    email = StringField(
+        "Email address",
+        validators=[
+            DataRequired(message="Email is required."),
+            Email(message="Please enter a valid email address.")
+        ]
+    )
+
+    message = TextAreaField(
+        "Message",
+        validators=[DataRequired(message="Message is required.")]
+    )
+
     submit = SubmitField("Send")
 
 @app.route("/contact", methods=["GET", "POST"])
