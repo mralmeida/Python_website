@@ -1,11 +1,27 @@
-{% extends "base.html" %}
-{% block content %}
-<body>
-    <h2>Thank you!</h2>
+<script>
+let seconds = 10;
 
-    <p><strong>Name:</strong> {{ name }}</p>
-    <p><strong>Email:</strong> {{ email }}</p>
-    <p><strong>Message:</strong> {{ message }}</p>
+const timer = setInterval(function() {
+    seconds--;
 
-    <p>Your message has been saved in the database.</p>
-    {% endblock %}}
+    document.getElementById("countdown").innerText = seconds;
+
+    if (seconds <= 0) {
+        clearInterval(timer);
+        window.location.href = "{{ url_for('messages') }}";
+    }
+}, 1000);
+</script>
+
+{% extends "base.html" %} {% block content %}
+<b>Thank you!</b><br>
+Name: {{ name }}<br>
+Email: {{ email }}<br>
+Message: {{ message }}<br>
+Your message has been saved in the database.
+<p>
+    Redirecting in
+    <span id="countdown">10</span>
+    seconds...
+</p>
+{% endblock %}
