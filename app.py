@@ -115,16 +115,15 @@ from flask import Flask, render_template, request
 
 @app.route("/import-csv", methods=["GET", "POST"])
 def import_csv():
-    #import pdb; pdb.set_trace()  # debugger stops here
-
     if request.method == "POST":
-
         file = request.files["csvfile"]
 
         conn = sqlite3.connect("database.db")
         cursor = conn.cursor()
 
-        csv_reader = csv.DictReader(file.stream.read().decode("utf-8").splitlines())
+        csv_reader = csv.DictReader(
+            file.stream.read().decode("utf-8").splitlines()
+        )
 
         for row in csv_reader:
             cursor.execute("""
@@ -139,7 +138,7 @@ def import_csv():
         conn.commit()
         conn.close()
 
-        return "CSV imported successfully!"
+        return render_template("import_success.html")
 
     return render_template("import_csv.html")
 #-----
