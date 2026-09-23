@@ -6,4 +6,6 @@
     <input type="file" name="csvfile" accept=".csv">
     <button type="submit">Upload</button>
 </form>
+<br><br><br>
+<a href="{{ url_for('static',filename='files/model.csv') }}"><img src="{{ url_for('static',filename='images/csv-icon.png') }}" alt="Download the template file here"></a>
 {% endblock %}}
