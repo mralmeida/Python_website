@@ -144,13 +144,6 @@ def import_csv():
 #-----
 from flask import send_from_directory
 
-@app.route("/download-template")
-def download_template():
-    return send_from_directory(
-        "static/files",
-        "model.csv",
-        as_attachment=True
-    )
 # ---------------------------------------------------------------------
 # --- To edit the selected record
 @app.route("/edit/<int:message_id>", methods=["GET", "POST"])
