@@ -2,7 +2,8 @@ from flask import Flask, render_template
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired, Email
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, flash
+
 import sqlite3
 
 app = Flask(__name__)
@@ -112,35 +113,219 @@ def delete_messages():
 import csv
 import sqlite3
 from flask import Flask, render_template, request
+from wtforms.validators import Email
+REQUIRED_COLUMNS = {"name", "email", "message"}
+from wtforms.validators import Email
 
-@app.route("/import-csv", methods=["GET", "POST"])
-def import_csv():
-    if request.method == "POST":
-        file = request.files["csvfile"]
+def read_csv_file(file):
+    """
+    Reads the uploaded CSV and returns a list of rows.
+    """
 
-        conn = sqlite3.connect("database.db")
-        cursor = conn.cursor()
+    try:
+        text = file.stream.read().decode("utf-8")
+    except UnicodeDecodeError:
+        return None, ["The file is not a valid UTF-8 CSV file."]
 
-        csv_reader = csv.DictReader(
-            file.stream.read().decode("utf-8").splitlines()
+    reader = csv.DictReader(text.splitlines())
+
+    if not reader.fieldnames:
+        return None, ["The file does not contain a valid CSV header row."]
+
+    rows = list(reader)
+
+    return rows, []
+
+
+def validate_csv_columns(fieldnames):
+    """
+    Validates that required columns exist.
+    """
+
+    errors = []
+
+    missing_columns = REQUIRED_COLUMNS - set(fieldnames)
+
+    if missing_columns:
+        errors.append(
+            f"Missing required columns: {', '.join(sorted(missing_columns))}"
         )
 
-        for row in csv_reader:
+    return errors
+
+
+def validate_email_address(email):
+    """
+    Basic email validation.
+    """
+
+    if not email:
+        return False
+
+    return "@" in email and "." in email
+
+
+def validate_csv_rows(rows):
+    """
+    Validates row data.
+    """
+
+    errors = []
+
+    for row_number, row in enumerate(rows, start=2):
+
+        if not row.get("name", "").strip():
+            errors.append(
+                f"Row {row_number}: Name cannot be empty."
+            )
+
+        if not row.get("email", "").strip():
+            errors.append(
+                f"Row {row_number}: Email cannot be empty."
+            )
+
+        elif not validate_email_address(row["email"].strip()):
+            errors.append(
+                f"Row {row_number}: Invalid email address."
+            )
+
+        if not row.get("message", "").strip():
+            errors.append(
+                f"Row {row_number}: Message cannot be empty."
+            )
+
+    return errors
+
+
+def validate_csv_file(file):
+    """
+    Runs all file validations.
+    """
+
+    rows, errors = read_csv_file(file)
+
+    if errors:
+        return None, errors
+
+    if not rows:
+        return None, ["The file contains no data rows."]
+
+    column_errors = validate_csv_columns(rows[0].keys())
+
+    if column_errors:
+        return None, column_errors
+
+    row_errors = validate_csv_rows(rows)
+
+    if row_errors:
+        return None, row_errors
+
+    return rows, []
+
+
+def insert_rows(rows):
+    """
+    Inserts rows in a single transaction.
+    """
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    try:
+
+        for row in rows:
+
             cursor.execute("""
                 INSERT INTO messages (name, email, message)
                 VALUES (?, ?, ?)
             """, (
-                row["name"],
-                row["email"],
-                row["message"]
+                row["name"].strip(),
+                row["email"].strip(),
+                row["message"].strip()
             ))
 
         conn.commit()
+
+    except Exception:
+        conn.rollback()
+        raise
+
+    finally:
         conn.close()
 
-        return render_template("import_success.html")
+@app.route("/import-csv", methods=["GET", "POST"])
+def import_csv():
+
+    if request.method == "POST":
+
+        file = request.files.get("csvfile")
+
+        if not file or file.filename == "":
+            flash("Please select a CSV file before uploading.")
+            return redirect(request.url)
+
+        rows, errors = validate_csv_file(file)
+
+        if errors:
+
+            for error in errors:
+                flash(error)
+
+            return redirect(request.url)
+
+        try:
+
+            insert_rows(rows)
+
+        except Exception as ex:
+
+            flash(
+                f"Database error. No records were imported. "
+                f"Details: {str(ex)}"
+            )
+
+            return redirect(request.url)
+
+        return render_template(
+            "import_success.html",
+            records_imported=len(rows)
+        )
 
     return render_template("import_csv.html")
+
+# @app.route("/import-csv", methods=["GET", "POST"])
+#
+# def import_csv():
+#     if request.method == "POST":
+#         file = request.files["csvfile"]
+#
+#         if not file or file.filename == '':
+#             flash('Please select a CSV file before uploading.')
+#             return redirect(request.url)
+#
+#         conn = sqlite3.connect("database.db")
+#         cursor = conn.cursor()
+#
+#         csv_reader = csv.DictReader(
+#             file.stream.read().decode("utf-8").splitlines()
+#         )
+#
+#         for row in csv_reader:
+#             cursor.execute("""
+#                 INSERT INTO messages (name, email, message)
+#                 VALUES (?, ?, ?)
+#             """, (
+#                 row["name"],
+#                 row["email"],
+#                 row["message"]
+#             ))
+#
+#         conn.commit()
+#         conn.close()
+#
+#         return render_template("import_success.html")
+#     # Handles GET requests
+#     return render_template("import_csv.html")
 #-----
 from flask import send_from_directory
 

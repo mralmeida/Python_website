@@ -1,11 +1,28 @@
+
 {% extends "base.html" %}
 {% block content %}
 <h1>Import CSV</h1>
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div style="color:red;">
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+{% endwith %}
 
 <form method="POST" enctype="multipart/form-data">
-    <input type="file" name="csvfile" accept=".csv">
-    <button type="submit">Upload</button>
+    <input type="file" name="csvfile" id="csvfile" accept=".csv">
+    <button type="submit" id="uploadBtn" disabled>Upload</button>
 </form>
+<script>
+document.getElementById('csvfile').addEventListener('change', function () {
+document.getElementById('uploadBtn').disabled = this.files.length === 0;
+});
+</script>
 <br><br><br>
 <a href="{{ url_for('static',filename='files/model.csv') }}"><img src="{{ url_for('static',filename='images/csv-icon.png') }}" alt="Download the template file here"></a>
 {% endblock %}}
