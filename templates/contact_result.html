@@ -8,7 +8,7 @@ const timer = setInterval(function() {
 
     if (seconds <= 0) {
         clearInterval(timer);
-        window.location.href = "{{ url_for('messages') }}";
+        window.location.href = "{{ url_for('contacts') }}";
     }
 }, 1000);
 </script>
@@ -17,8 +17,10 @@ const timer = setInterval(function() {
 <b>Thank you!</b><br>
 Name: {{ name }}<br>
 Email: {{ email }}<br>
-Message: {{ message }}<br>
-Your message has been saved in the database.
+Role: {{ role }}<br>
+Department: {{ department }}<br>
+Message: {{ comment }}<br>
+Your contact has been saved in the database.
 <p>
     Redirecting in
     <span id="countdown">10</span>

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form method="POST" action="/delete-messages">
+    <h1>{{ count }} Contacts recovered</h1>
+    <table border="1" cellpadding="2">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Company ID</th>
+            <th>Company</th>
+            <th>Role ID</th>
+            <th>Role</th>
+            <th>Dept ID</th>
+            <th>Dept</th>
+            <th>Comment</th>
+            <th>Edit</th>
+        </tr>
+
+        {% for cts in contacts %}
+        <tr>
+            <td>{{ cts[0] }}</td>
+            <td>{{ cts[1] }}</td>
+            <td><a href="mailto:{{ cts[2] }}">{{ cts[2] }}</a></td>
+            <td>{{ cts[3] }}</td>
+            <td>{{ cts[4] }}</td>
+            <td>{{ cts[5] }}</td>
+            <td>{{ cts[6] }}</td>
+            <td>{{ cts[7] }}</td>
+            <td>{{ cts[8] }}</td>
+            <td>{{ cts[9] }}</td>
+            <td><a href="/edit/{{ cts[0] }}"> <button type="button">Edit</button> </a></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</form>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    const checkboxes = document.querySelectorAll(
+        'input[name="delete_ids"]'
+    );
+
+    const deleteButton = document.getElementById("deleteButton");
+
+    function updateButtonState() {
+        const checked = document.querySelectorAll(
+            'input[name="delete_ids"]:checked'
+        );
+
+        deleteButton.disabled = checked.length === 0;
+    }
+
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener("change", updateButtonState);
+    });
+
+    updateButtonState();
+});
+</script>
+
+{% endblock %}

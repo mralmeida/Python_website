@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>
-    {% if edit_mode %} Edit Message {% else %} Contact Form {% endif %}
+    {% if edit_mode %} Edit Contact {% else %} Contact Form {% endif %}
 </h1>
     <form method="POST">
         {{ form.hidden_tag() }}
@@ -17,7 +17,23 @@
         </p>
 
         <p>
-            {{ form.message() }} {% for error in form.message.errors %} {{ error }} {% endfor %}
+            {{ form.role.label }}
+            {{ form.role() }}
+        </p>
+
+        <p>
+            {{ form.department.label }}
+            {{ form.department() }}
+        </p>
+
+        <p>
+            {{ form.company.label }}
+            {{ form.company() }}
+        </p>
+
+        <p>
+            {{ form.comment.label }}
+            {{ form.comment(rows=4, cols=40) }}
         </p>
 
         <p>{{ form.submit() }}</p>

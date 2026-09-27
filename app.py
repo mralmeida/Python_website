@@ -1,11 +1,18 @@
-from flask import Flask, render_template
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField
+from flask_wtf import FlaskForm
+from wtforms import (
+    StringField,
+    TextAreaField,
+    SubmitField,
+    SelectField
+)
 from wtforms.validators import DataRequired, Email
-from flask import Flask, render_template, request, redirect, flash
-
-import sqlite3
-
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect
+)
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "something-secure"
 
@@ -24,45 +31,128 @@ def init_db():
     conn.close()
 @app.route("/")
 def home():
-    return redirect("/messages")
+    return redirect("/contacts")
+# ---- this whole class is supposed to be replaced by the one below. It will now also have combo boxes instead of only text fields
+# ----- I will cut this function off after I am done with the changes
+# class ContactForm(FlaskForm):
+#     name = StringField(
+#         "Your name",
+#         validators=[DataRequired(message="Name is required.")]
+#     )
+#
+#     email = StringField(
+#         "Email address",
+#         validators=[
+#             DataRequired(message="Email is required."),
+#             Email(message="Please enter a valid email address.")
+#         ]
+#     )
+#     role = StringField(
+#         "Role",
+#         validators=[
+#             DataRequired(message="Role is required"),
+#         ]
+#     )
+#     company = StringField(
+#         "Company",
+#         validators=[
+#             DataRequired(message="Company is required"),
+#         ]
+#     )
+#     department = StringField(
+#         "Department",
+#         validators=[
+#             DataRequired(message="Department is required"),
+#         ]
+#     )
+#     comment = TextAreaField(
+#         "Message",
+#         validators=[DataRequired(message="Comment is required.")]
+#     )
+#
+#     submit = SubmitField("Send")
 
 class ContactForm(FlaskForm):
-    name = StringField(
-        "Your name",
-        validators=[DataRequired(message="Name is required.")]
-    )
+    name = StringField("Name",validators=[DataRequired()])
+    email = StringField("Email",validators=[DataRequired(), Email()])
+    company = SelectField("Company", coerce=int)
+    role = SelectField("Role", coerce=int)
+    department = SelectField("Department", coerce=int)
+    comment = TextAreaField("Comment")
+    submit = SubmitField("Save")
+# ----- these are "helper functions"
+def get_roles():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
 
-    email = StringField(
-        "Email address",
-        validators=[
-            DataRequired(message="Email is required."),
-            Email(message="Please enter a valid email address.")
-        ]
-    )
+    cursor.execute("""
+        SELECT id, name
+        FROM role
+        ORDER BY name
+    """)
 
-    message = TextAreaField(
-        "Message",
-        validators=[DataRequired(message="Message is required.")]
-    )
+    rows = cursor.fetchall()
+    conn.close()
 
-    submit = SubmitField("Send")
+    return [(row[0], row[1]) for row in rows]
+
+
+def get_companies():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT id, name
+        FROM company
+        ORDER BY name
+    """)
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    return [(row[0], row[1]) for row in rows]
+
+def get_departments():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT id, name
+        FROM department 
+        ORDER BY name
+    """)
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    return [(row[0], row[1]) for row in rows]
+#----- end of "helper functions"
 
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
     form = ContactForm()
 
+    #--- loads all combo boxes
+    form.company.choices = get_companies()
+    form.role.choices = get_roles()
+    form.department.choices = get_departments()
+    # ----- combo boxes all loaded
+
     if form.validate_on_submit():
         name = form.name.data
         email = form.email.data
-        message = form.message.data
+        company_id = form.company.data
+        role_id = form.role.data
+        department_id = form.department.data
+        comment = form.comment.data
 
         # Insert into SQLite
         conn = sqlite3.connect("database.db")
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO messages (name, email, message)
-            VALUES (?, ?, ?)
-        """, (name, email, message))
+            INSERT INTO contact (name, email, roleID, companyID, departmentID, obs)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (name, email, role_id, company_id, department_id , comment))
         conn.commit()
         conn.close()
 
@@ -70,52 +160,79 @@ def contact():
             "contact_result.html",
             name=name,
             email=email,
-            message=message
+            role=role_id,
+            company=company_id,
+            department=department_id,
+            comment=comment
         )
 
     return render_template("contact_form.html", form=form)
 
-def get_messages():
+# def get_messages():
+#     conn = sqlite3.connect("database.db")
+#     cursor = conn.cursor()
+#     cursor.execute("SELECT id, name, email, message FROM messages")
+#     rows = cursor.fetchall()
+#     conn.close()
+#     return rows
+#
+#
+# @app.route("/messages")
+# def messages():
+#     data = get_messages()
+#     count = len(data)
+#     return render_template("messages.html", messages=data, count=count)
+# --------------------------------------------------------
+def get_contacts():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT id, name, email, message FROM messages")
+    sql = """
+    SELECT CTS.id, CTS.name, CTS.email, CTS.companyID, COMP.name, CTS.roleID, ROLE.name, CTS.departmentID, DEPT.name, CTS.obs 
+    FROM contact CTS 
+    INNER JOIN company COMP ON CTS.companyID = COMP.id 
+    INNER JOIN role ROLE ON ROLE.id = CTS.roleID 
+    INNER JOIN department DEPT ON DEPT.id = CTS.departmentID 
+    ORDER BY CTS.name
+    """
+    cursor.execute(sql)
     rows = cursor.fetchall()
     conn.close()
     return rows
 
 
-@app.route("/messages")
-def messages():
-    data = get_messages()
+@app.route("/contacts")
+def contacts():
+    data = get_contacts()
     count = len(data)
-    return render_template("messages.html", messages=data, count=count)
+    return render_template("contacts.html", contacts=data, count=count)
 
 # --------------------------------------------------------
 # --to delete all selected records
-@app.route("/delete-messages", methods=["POST"])
-def delete_messages():
-    ids = request.form.getlist("delete_ids")
-
-    if ids:
-        conn = sqlite3.connect("database.db")
-        cursor = conn.cursor()
-
-        for message_id in ids:
-            cursor.execute("DELETE FROM messages WHERE id = ?", (message_id,))
-
-        conn.commit()
-        conn.close()
-
-    return redirect("/messages")
+# ---- For now, let us disable this feature. We do not want to delete our records. I will figure out how to do that safely later.
+# @app.route("/delete-messages", methods=["POST"])
+# def delete_messages():
+#     ids = request.form.getlist("delete_ids")
+#
+#     if ids:
+#         conn = sqlite3.connect("database.db")
+#         cursor = conn.cursor()
+#
+#         for message_id in ids:
+#             cursor.execute("DELETE FROM messages WHERE id = ?", (message_id,))
+#
+#         conn.commit()
+#         conn.close()
+#
+#     return redirect("/messages")
 
 # ---------------------------------------------------------
 #---to insert data onto messages table
 import csv
 import sqlite3
-from flask import Flask, render_template, request
-from wtforms.validators import Email
+from flask import render_template, request
+
 REQUIRED_COLUMNS = {"name", "email", "message"}
-from wtforms.validators import Email
+
 
 def read_csv_file(file):
     """
@@ -189,9 +306,9 @@ def validate_csv_rows(rows):
                 f"Row {row_number}: Invalid email address."
             )
 
-        if not row.get("message", "").strip():
+        if not row.get("comment", "").strip():
             errors.append(
-                f"Row {row_number}: Message cannot be empty."
+                f"Row {row_number}: Comment cannot be empty."
             )
 
     return errors
@@ -293,84 +410,64 @@ def import_csv():
 
     return render_template("import_csv.html")
 
-# @app.route("/import-csv", methods=["GET", "POST"])
-#
-# def import_csv():
-#     if request.method == "POST":
-#         file = request.files["csvfile"]
-#
-#         if not file or file.filename == '':
-#             flash('Please select a CSV file before uploading.')
-#             return redirect(request.url)
-#
-#         conn = sqlite3.connect("database.db")
-#         cursor = conn.cursor()
-#
-#         csv_reader = csv.DictReader(
-#             file.stream.read().decode("utf-8").splitlines()
-#         )
-#
-#         for row in csv_reader:
-#             cursor.execute("""
-#                 INSERT INTO messages (name, email, message)
-#                 VALUES (?, ?, ?)
-#             """, (
-#                 row["name"],
-#                 row["email"],
-#                 row["message"]
-#             ))
-#
-#         conn.commit()
-#         conn.close()
-#
-#         return render_template("import_success.html")
-#     # Handles GET requests
-#     return render_template("import_csv.html")
-#-----
-from flask import send_from_directory
 
 # ---------------------------------------------------------------------
 # --- To edit the selected record
-@app.route("/edit/<int:message_id>", methods=["GET", "POST"])
-def edit_message(message_id):
+@app.route("/edit/<int:contact_id>", methods=["GET", "POST"])
+def edit_message(contact_id):
 
     form = ContactForm()
+    #----- populate all combo boxes and get them ready to be selected with the record info
+    form.company.choices = get_companies()
+    form.role.choices = get_roles()
+    form.department.choices = get_departments()
 
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
     if request.method == "GET":
 
-        cursor.execute("""
-            SELECT name, email, message
-            FROM messages
-            WHERE id = ?
-        """, (message_id,))
-
+        sql = """
+            SELECT      CTS.id, CTS.name, CTS.email, CTS.companyID, COMP.name,  
+                        CTS.roleID, ROLE.name, CTS.departmentID, DEPT.name, CTS.obs
+            FROM        contact CTS
+                INNER JOIN company COMP ON CTS.companyID = COMP.id
+                INNER JOIN role ROLE ON ROLE.id = CTS.roleID
+                INNER JOIN department DEPT ON DEPT.id = CTS.departmentID
+            WHERE       CTS.id = ?
+            ORDER BY    CTS.name
+        """
+        cursor.execute(sql, (contact_id,))
         record = cursor.fetchone()
 
         if record:
-            form.name.data = record[0]
-            form.email.data = record[1]
-            form.message.data = record[2]
+            form.name.data = record[1]
+            form.email.data = record[2]
+            form.company.data = record[3]
+            form.role.data = record[5]
+            form.department.data = record[7]
+            form.comment.data = record[9]
 
     if form.validate_on_submit():
 
         cursor.execute("""
-            UPDATE messages
-            SET name = ?, email = ?, message = ?
+            UPDATE contact
+            SET name = ?, email = ?, companyid = ?, roleid = ?, departmentid = ?, obs = ?
             WHERE id = ?
         """, (
             form.name.data,
             form.email.data,
-            form.message.data,
-            message_id
+            form.company.data,
+            form.role.data,
+            form.department.data,
+            form.comment.data,
+            contact_id
         ))
 
         conn.commit()
         conn.close()
         form.submit.label.text = "Save Changes"
-        return redirect("/messages")
+        return redirect("/contacts")
 
     conn.close()
 
