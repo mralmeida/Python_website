@@ -1,5 +1,3 @@
-import flash
-from flask_wtf import FlaskForm
 from flask_wtf import FlaskForm
 from wtforms import (
     StringField,
@@ -12,7 +10,8 @@ from flask import (
     Flask,
     render_template,
     request,
-    redirect
+    redirect,
+    flash
 )
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "something-secure"
