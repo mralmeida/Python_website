@@ -1,3 +1,4 @@
+import flash
 from flask_wtf import FlaskForm
 from flask_wtf import FlaskForm
 from wtforms import (
@@ -32,45 +33,6 @@ def init_db():
 @app.route("/")
 def home():
     return redirect("/contacts")
-# ---- this whole class is supposed to be replaced by the one below. It will now also have combo boxes instead of only text fields
-# ----- I will cut this function off after I am done with the changes
-# class ContactForm(FlaskForm):
-#     name = StringField(
-#         "Your name",
-#         validators=[DataRequired(message="Name is required.")]
-#     )
-#
-#     email = StringField(
-#         "Email address",
-#         validators=[
-#             DataRequired(message="Email is required."),
-#             Email(message="Please enter a valid email address.")
-#         ]
-#     )
-#     role = StringField(
-#         "Role",
-#         validators=[
-#             DataRequired(message="Role is required"),
-#         ]
-#     )
-#     company = StringField(
-#         "Company",
-#         validators=[
-#             DataRequired(message="Company is required"),
-#         ]
-#     )
-#     department = StringField(
-#         "Department",
-#         validators=[
-#             DataRequired(message="Department is required"),
-#         ]
-#     )
-#     comment = TextAreaField(
-#         "Message",
-#         validators=[DataRequired(message="Comment is required.")]
-#     )
-#
-#     submit = SubmitField("Send")
 
 class ContactForm(FlaskForm):
     name = StringField("Name",validators=[DataRequired()])
