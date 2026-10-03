@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Roles ({{ count }})</h1>
+
+    <p>
+        <a href="/role/new">Add Role</a>
+    </p>
+
+    <table border="1" cellspacing="0" cellpadding="5">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+
+        {% for r in roles %}
+        <tr>
+            <td>{{ r[0] }}</td>
+            <td>{{ r[1] }}</td>
+            <td>
+                <a href="/role/edit/{{ r[0] }}">Edit</a> |
+                <a href="/role/delete/{{ r[0] }}">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

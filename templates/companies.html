@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ count }} Companies found</h1>
+
+<p>
+    <a href="/company/new">
+        <button type="button">Add Company</button>
+    </a>
+</p>
+
+<table border="1" cellpadding="2">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Edit</th>
+    </tr>
+
+    {% for company in companies %}
+    <tr>
+        <td>{{ company[0] }}</td>
+        <td>{{ company[1] }}</td>
+        <td>
+            <a href="/company/edit/{{ company[0] }}">
+                <button type="button">Edit</button>
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

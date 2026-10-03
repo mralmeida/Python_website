@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Departments ({{ count }})</h1>
+
+    <p>
+        <a href="/department/new">Add Department</a>
+    </p>
+
+    <table border="1" cellspacing="0" cellpadding="5">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+
+        {% for d in departments %}
+        <tr>
+            <td>{{ d[0] }}</td>
+            <td>{{ d[1] }}</td>
+            <td>
+                <a href="/department/edit/{{ d[0] }}">Edit</a> |
+                <a href="/department/delete/{{ d[0] }}">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

@@ -34,13 +34,23 @@ def home():
     return redirect("/contacts")
 
 class ContactForm(FlaskForm):
-    name = StringField("Name",validators=[DataRequired()])
-    email = StringField("Email",validators=[DataRequired(), Email()])
+    name = StringField("Name", validators=[DataRequired()])
+    email = StringField("Email", validators=[DataRequired(), Email()])
     company = SelectField("Company", coerce=int)
     role = SelectField("Role", coerce=int)
     department = SelectField("Department", coerce=int)
     comment = TextAreaField("Comment")
     submit = SubmitField("Save")
+# ----- Master form
+class MasterForm(FlaskForm):
+    name = StringField(
+        "Name",
+        validators=[DataRequired()]
+    )
+
+    submit = SubmitField("Save")
+
+
 # ----- these are "helper functions"
 def get_roles():
     conn = sqlite3.connect("database.db")
@@ -437,7 +447,320 @@ def edit_message(contact_id):
         form=form,
         edit_mode=True
     )
+# ---- helper functions
+def get_master_records(table_name):
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
 
+    cursor.execute(f"""
+        SELECT id, name
+        FROM {table_name}
+        ORDER BY name
+    """)
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    return rows
+#--- company list page
+@app.route("/companies")
+def companies():
+
+    data = get_master_records("company")
+
+    return render_template(
+        "companies.html",
+        companies=data,
+        count=len(data)
+    )
+#--- Create company
+@app.route("/company/new", methods=["GET", "POST"])
+def company_new():
+
+    form = MasterForm()
+
+    if form.validate_on_submit():
+
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO company(name)
+            VALUES(?)
+        """, (form.name.data,))
+
+        conn.commit()
+        conn.close()
+
+        return redirect("/companies")
+
+    return render_template(
+        "master_form.html",
+        form=form,
+        title="New Company"
+    )
+#----- Edit Company
+@app.route("/company/edit/<int:id>",
+           methods=["GET", "POST"])
+def company_edit(id):
+
+    form = MasterForm()
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    if request.method == "GET":
+
+        cursor.execute("""
+            SELECT id, name
+            FROM company
+            WHERE id = ?
+        """, (id,))
+
+        row = cursor.fetchone()
+
+        if row:
+            form.name.data = row[1]
+
+    if form.validate_on_submit():
+
+        cursor.execute("""
+            UPDATE company
+            SET name = ?
+            WHERE id = ?
+        """, (
+            form.name.data,
+            id
+        ))
+
+        conn.commit()
+        conn.close()
+
+        return redirect("/companies")
+
+    conn.close()
+
+    return render_template(
+        "master_form.html",
+        form=form,
+        title="Edit Company"
+    )
+#---- Delete Company
+@app.route("/company/delete/<int:id>")
+def company_delete(id):
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        DELETE FROM company
+        WHERE id = ?
+    """, (id,))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/companies")
+
+#----- DEPARTMENT CRUD
+@app.route("/departments")
+def departments():
+    data = get_master_records("department")
+
+    return render_template(
+        "departments.html",
+        departments=data,
+        count=len(data)
+    )
+#--- Create Department
+@app.route("/department/new", methods=["GET", "POST"])
+def department_new():
+
+    form = MasterForm()
+
+    if form.validate_on_submit():
+
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO department(name)
+            VALUES(?)
+        """, (form.name.data,))
+
+        conn.commit()
+        conn.close()
+
+        return redirect("/departments")
+
+    return render_template(
+        "master_form.html",
+        form=form,
+        title="New Department"
+    )
+#----- Edit Department
+@app.route("/department/edit/<int:id>",
+           methods=["GET", "POST"])
+def department_edit(id):
+
+    form = MasterForm()
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    if request.method == "GET":
+
+        cursor.execute("""
+            SELECT id, name
+            FROM department
+            WHERE id = ?
+        """, (id,))
+
+        row = cursor.fetchone()
+
+        if row:
+            form.name.data = row[1]
+
+    if form.validate_on_submit():
+
+        cursor.execute("""
+            UPDATE department
+            SET name = ?
+            WHERE id = ?
+        """, (
+            form.name.data,
+            id
+        ))
+
+        conn.commit()
+        conn.close()
+
+        return redirect("/departments")
+
+    conn.close()
+
+    return render_template(
+        "master_form.html",
+        form=form,
+        title="Edit Department"
+    )
+#---- Delete Department
+@app.route("/department/delete/<int:id>")
+def department_delete(id):
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        DELETE FROM department
+        WHERE id = ?
+    """, (id,))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/departments")
+
+
+# ----- ROLE CRUD
+@app.route("/roles")
+def roles():
+    data = get_master_records("role")
+
+    return render_template(
+        "roles.html",
+        roles=data,
+        count=len(data)
+    )
+
+
+# --- Create Role
+@app.route("/role/new", methods=["GET", "POST"])
+def role_new():
+    form = MasterForm()
+
+    if form.validate_on_submit():
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO role(name)
+            VALUES(?)
+        """, (form.name.data,))
+
+        conn.commit()
+        conn.close()
+
+        return redirect("/roles")
+
+    return render_template(
+        "master_form.html",
+        form=form,
+        title="New Role"
+    )
+
+
+# ----- Edit Role
+@app.route("/role/edit/<int:id>", methods=["GET", "POST"])
+def role_edit(id):
+    form = MasterForm()
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    if request.method == "GET":
+
+        cursor.execute("""
+            SELECT id, name
+            FROM role
+            WHERE id = ?
+        """, (id,))
+
+        row = cursor.fetchone()
+
+        if row:
+            form.name.data = row[1]
+
+    if form.validate_on_submit():
+        cursor.execute("""
+            UPDATE role
+            SET name = ?
+            WHERE id = ?
+        """, (
+            form.name.data,
+            id
+        ))
+
+        conn.commit()
+        conn.close()
+
+        return redirect("/roles")
+
+    conn.close()
+
+    return render_template(
+        "master_form.html",
+        form=form,
+        title="Edit Role"
+    )
+
+
+# ---- Delete Role
+@app.route("/role/delete/<int:id>")
+def role_delete(id):
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        DELETE FROM role
+        WHERE id = ?
+    """, (id,))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/roles")
+#----- end of all functions for company, department and role
 if __name__ == "__main__":
     init_db()
     app.run(debug=True)
