@@ -4,28 +4,27 @@
 <h1>{{ count }} Companies found</h1>
 
 <p>
-    <a href="/company/new">
-        <button type="button">Add Company</button>
-    </a>
+    <a href="/company/new" class="new-icon" title="Add Company"><i class="bi bi-plus-circle-fill"></i></a><b>Add new Company</b>
 </p>
 
-<table border="1" cellpadding="2">
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Edit</th>
-    </tr>
-
-    {% for company in companies %}
-    <tr>
-        <td>{{ company[0] }}</td>
-        <td>{{ company[1] }}</td>
-        <td>
-            <a href="/company/edit/{{ company[0] }}">
-                <button type="button">Edit</button>
-            </a>
-        </td>
-    </tr>
-    {% endfor %}
+<table id="contactsTable" class="datatable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for company in companies %}
+        <tr>
+            <td>{{ company[0] }}</td>
+            <td>{{ company[1] }}</td>
+            <td><a href="/company/edit/{{ company[0] }}" class="edit-icon"><i class="bi bi-pencil-square"></i></a></td>
+            <td><a href="/company/delete/{{ company[0] }}"><i class="bi bi-trash"></i></a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 {% endblock %}

@@ -1,9 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
 
-<form method="POST" action="/delete-messages">
+<!--<form method="POST" action="/delete-messages">-->
+<form method="POST">
     <h1>{{ count }} Contacts recovered</h1>
-    <table border="1" cellpadding="2">
+<!--<a href="/contact">Add Contact</a>-->
+    <p>
+        <a href="/contact" class="new-icon" title="Add Contact"><i class="bi bi-plus-circle-fill"></i></a><b>Add new Contact</b>
+    </p>
+    <table id="contactsTable" class="datatable">
+        <thead>
         <tr>
             <th>ID</th>
             <th>Name</th>
@@ -17,7 +23,8 @@
             <th>Comment</th>
             <th>Edit</th>
         </tr>
-
+        </thead>
+        <tbody>
         {% for cts in contacts %}
         <tr>
             <td>{{ cts[0] }}</td>
@@ -30,35 +37,35 @@
             <td>{{ cts[7] }}</td>
             <td>{{ cts[8] }}</td>
             <td>{{ cts[9] }}</td>
-            <td><a href="/edit/{{ cts[0] }}"> <button type="button">Edit</button> </a></td>
+            <td><a href="/edit/{{ cts[0] }}" class="edit-icon"><i class="bi bi-pencil-square"></i></a></td>
         </tr>
         {% endfor %}
+        </tbody>
     </table>
-
 </form>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
+<!--<script>-->
+<!--document.addEventListener("DOMContentLoaded", function() {-->
 
-    const checkboxes = document.querySelectorAll(
-        'input[name="delete_ids"]'
-    );
+<!--    const checkboxes = document.querySelectorAll(-->
+<!--        'input[name="delete_ids"]'-->
+<!--    );-->
 
-    const deleteButton = document.getElementById("deleteButton");
+<!--    const deleteButton = document.getElementById("deleteButton");-->
 
-    function updateButtonState() {
-        const checked = document.querySelectorAll(
-            'input[name="delete_ids"]:checked'
-        );
+<!--    function updateButtonState() {-->
+<!--        const checked = document.querySelectorAll(-->
+<!--            'input[name="delete_ids"]:checked'-->
+<!--        );-->
 
-        deleteButton.disabled = checked.length === 0;
-    }
+<!--        deleteButton.disabled = checked.length === 0;-->
+<!--    }-->
 
-    checkboxes.forEach(function(checkbox) {
-        checkbox.addEventListener("change", updateButtonState);
-    });
+<!--    checkboxes.forEach(function(checkbox) {-->
+<!--        checkbox.addEventListener("change", updateButtonState);-->
+<!--    });-->
 
-    updateButtonState();
-});
-</script>
+<!--    updateButtonState();-->
+<!--});-->
+<!--</script>-->
 
 {% endblock %}

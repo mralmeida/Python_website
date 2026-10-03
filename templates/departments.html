@@ -2,27 +2,28 @@
 
 {% block content %}
     <h1>Departments ({{ count }})</h1>
-
     <p>
-        <a href="/department/new">Add Department</a>
+        <a href="/department/new" class="new-icon" title="Add Department"><i class="bi bi-plus-circle-fill"></i></a><b>Add new Department</b>
     </p>
 
-    <table border="1" cellspacing="0" cellpadding="5">
+<table id="contactsTable" class="datatable">
+    <thead>
         <tr>
             <th>ID</th>
             <th>Name</th>
-            <th>Actions</th>
+            <th>Edit</th>
+            <th>Delete</th>
         </tr>
-
+    </thead>
+    <tbody>
         {% for d in departments %}
         <tr>
             <td>{{ d[0] }}</td>
             <td>{{ d[1] }}</td>
-            <td>
-                <a href="/department/edit/{{ d[0] }}">Edit</a> |
-                <a href="/department/delete/{{ d[0] }}">Delete</a>
-            </td>
+            <td><a href="/department/edit/{{ d[0] }}" class="edit-icon"><i class="bi bi-pencil-square"></i></a></td>
+            <td><a href="/department/delete/{{ d[0] }}"><i class="bi bi-trash"></i></a></td>
         </tr>
         {% endfor %}
+    </tbody>
     </table>
 {% endblock %}
