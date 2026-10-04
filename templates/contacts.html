@@ -1,47 +1,48 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!--<form method="POST" action="/delete-messages">-->
 <form method="POST">
-    <h1>{{ count }} Contacts recovered</h1>
+    <h1>Contacts ({{ count }})</h1>
 <!--<a href="/contact">Add Contact</a>-->
     <p>
         <a href="/contact" class="new-icon" title="Add Contact"><i class="bi bi-plus-circle-fill"></i></a><b>Add new Contact</b>
     </p>
-    <table id="contactsTable" class="datatable">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Company ID</th>
-            <th>Company</th>
-            <th>Role ID</th>
-            <th>Role</th>
-            <th>Dept ID</th>
-            <th>Dept</th>
-            <th>Comment</th>
-            <th>Edit</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for cts in contacts %}
-        <tr>
-            <td>{{ cts[0] }}</td>
-            <td>{{ cts[1] }}</td>
-            <td><a href="mailto:{{ cts[2] }}">{{ cts[2] }}</a></td>
-            <td>{{ cts[3] }}</td>
-            <td>{{ cts[4] }}</td>
-            <td>{{ cts[5] }}</td>
-            <td>{{ cts[6] }}</td>
-            <td>{{ cts[7] }}</td>
-            <td>{{ cts[8] }}</td>
-            <td>{{ cts[9] }}</td>
-            <td><a href="/edit/{{ cts[0] }}" class="edit-icon"><i class="bi bi-pencil-square"></i></a></td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-container">
+        <table id="contactsTable" class="datatable">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Company ID</th>
+                <th>Company</th>
+                <th>Role ID</th>
+                <th>Role</th>
+                <th>Dept ID</th>
+                <th>Dept</th>
+                <th>Comment</th>
+                <th>Edit</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for cts in contacts %}
+            <tr>
+                <td>{{ cts[0] }}</td>
+                <td>{{ cts[1] }}</td>
+                <td><a href="mailto:{{ cts[2] }}">{{ cts[2] }}</a></td>
+                <td>{{ cts[3] }}</td>
+                <td>{{ cts[4] }}</td>
+                <td>{{ cts[5] }}</td>
+                <td>{{ cts[6] }}</td>
+                <td>{{ cts[7] }}</td>
+                <td>{{ cts[8] }}</td>
+                <td>{{ cts[9] }}</td>
+                <td><a href="/edit/{{ cts[0] }}" class="edit-icon"><i class="bi bi-pencil-square"></i></a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </form>
 <!--<script>-->
 <!--document.addEventListener("DOMContentLoaded", function() {-->

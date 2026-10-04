@@ -10,33 +10,33 @@ h1 {
     color: #1f2937;
 }
 table {
-    width: auto;
     border-collapse: collapse;
-    margin-top: 20px;
-    background-color: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 80%
 }
 
-th {
-    background-color: #4f46e5;
-    color: white;
-    text-align: left;
+th,
+td {
     padding: 12px;
-}
+    border
 
+th,
 td {
     padding: 12px;
     border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
 }
 
-tr:nth-child(even) {
-    background-color: #f9fafb;
+td:nth-child(10) {
+    white-space: normal;
+    max-width: 300px;
 }
 
 tr:hover {
     background-color: #eef2ff;
 }
-
+.table-container {
+    overflow-x: auto;
+}
 .edit-icon {
     color: #198754;
     font-size: 18px;
