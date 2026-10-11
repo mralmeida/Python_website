@@ -1,18 +1,18 @@
+from flask import (
+    Flask,
+    redirect,
+    flash
+)
 from flask_wtf import FlaskForm
 from wtforms import (
     StringField,
     TextAreaField,
     SubmitField,
-    SelectField
+    SelectField,
+    BooleanField
 )
 from wtforms.validators import DataRequired, Email
-from flask import (
-    Flask,
-    render_template,
-    request,
-    redirect,
-    flash
-)
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "something-secure"
 
@@ -39,6 +39,7 @@ class ContactForm(FlaskForm):
     company = SelectField("Company", coerce=int)
     role = SelectField("Role", coerce=int)
     department = SelectField("Department", coerce=int)
+    active = BooleanField("Active")
     comment = TextAreaField("Comment")
     submit = SubmitField("Save")
 # ----- Master form
@@ -140,29 +141,18 @@ def contact():
     return render_template("contact_form.html", form=form)
 
 # def get_messages():
-#     conn = sqlite3.connect("database.db")
-#     cursor = conn.cursor()
-#     cursor.execute("SELECT id, name, email, message FROM messages")
-#     rows = cursor.fetchall()
-#     conn.close()
-#     return rows
-#
-#
-# @app.route("/messages")
-# def messages():
-#     data = get_messages()
-#     count = len(data)
-#     return render_template("messages.html", messages=data, count=count)
+#----- get_messages is no longer necessary. I have cut this function from app.py. If you'd like it back, please refer to Git history up until 11/OCT/2026
 # --------------------------------------------------------
 def get_contacts():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
     sql = """
-    SELECT CTS.id, CTS.name, CTS.email, CTS.companyID, COMP.name, CTS.roleID, ROLE.name, CTS.departmentID, DEPT.name, CTS.obs 
+    SELECT CTS.id, CTS.name, CTS.email, CTS.companyID, COMP.name, CTS.roleID, ROLE.name, CTS.departmentID, DEPT.name, CTS.obs, CTS.active  
     FROM contact CTS 
     INNER JOIN company COMP ON CTS.companyID = COMP.id 
     INNER JOIN role ROLE ON ROLE.id = CTS.roleID 
-    INNER JOIN department DEPT ON DEPT.id = CTS.departmentID 
+    INNER JOIN department DEPT ON DEPT.id = CTS.departmentID
+    WHERE CTS.active = 1  
     ORDER BY CTS.name
     """
     cursor.execute(sql)
@@ -180,6 +170,8 @@ def contacts():
 # --------------------------------------------------------
 # --to delete all selected records
 # ---- For now, let us disable this feature. We do not want to delete our records. I will figure out how to do that safely later.
+#----- NEW INFO: I decided to deactivate the record instead of deleting it. This will keep the record for future re-activation and avoid creating new records unnecessarily.
+
 # @app.route("/delete-messages", methods=["POST"])
 # def delete_messages():
 #     ids = request.form.getlist("delete_ids")
@@ -400,7 +392,7 @@ def edit_message(contact_id):
 
         sql = """
             SELECT      CTS.id, CTS.name, CTS.email, CTS.companyID, COMP.name,  
-                        CTS.roleID, ROLE.name, CTS.departmentID, DEPT.name, CTS.obs
+                        CTS.roleID, ROLE.name, CTS.departmentID, DEPT.name, CTS.obs, CTS.active 
             FROM        contact CTS
                 INNER JOIN company COMP ON CTS.companyID = COMP.id
                 INNER JOIN role ROLE ON ROLE.id = CTS.roleID
@@ -418,12 +410,13 @@ def edit_message(contact_id):
             form.role.data = record[5]
             form.department.data = record[7]
             form.comment.data = record[9]
+            form.active.data = bool(record[10])
 
     if form.validate_on_submit():
 
         cursor.execute("""
             UPDATE contact
-            SET name = ?, email = ?, companyid = ?, roleid = ?, departmentid = ?, obs = ?
+            SET name = ?, email = ?, companyid = ?, roleid = ?, departmentid = ?, obs = ?, active = ? 
             WHERE id = ?
         """, (
             form.name.data,
@@ -432,6 +425,7 @@ def edit_message(contact_id):
             form.role.data,
             form.department.data,
             form.comment.data,
+            form.active.data,
             contact_id
         ))
 
@@ -455,6 +449,7 @@ def get_master_records(table_name):
     cursor.execute(f"""
         SELECT id, name
         FROM {table_name}
+        WHERE active = 1 
         ORDER BY name
     """)
 
@@ -546,16 +541,15 @@ def company_edit(id):
         title="Edit Company"
     )
 #---- Delete Company
+#----- we are going to adopt a different approach on deleting records. Instead, we'll de-activate it, by setting field active = 0. I will think about a way to re-activate it later.
 @app.route("/company/delete/<int:id>")
 def company_delete(id):
 
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    cursor.execute("""
-        DELETE FROM company
-        WHERE id = ?
-    """, (id,))
+    #--cursor.execute("DELETE FROM company WHERE id = ?", (id,))
+    cursor.execute("UPDATE company SET active = 0 WHERE id = ?", (id,))
 
     conn.commit()
     conn.close()
@@ -645,16 +639,15 @@ def department_edit(id):
         title="Edit Department"
     )
 #---- Delete Department
+# ----- we are going to adopt a different approach on deleting records. Instead, we'll de-activate it.
 @app.route("/department/delete/<int:id>")
 def department_delete(id):
 
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    cursor.execute("""
-        DELETE FROM department
-        WHERE id = ?
-    """, (id,))
+# -----cursor.execute("DELETE FROM department WHERE id = ?", (id,))
+    cursor.execute("UPDATE department SET active = 0 WHERE id = ?", (id,))
 
     conn.commit()
     conn.close()
@@ -751,10 +744,8 @@ def role_delete(id):
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    cursor.execute("""
-        DELETE FROM role
-        WHERE id = ?
-    """, (id,))
+    # ----- cursor.execute("DELETE FROM role WHERE id = ?", (id,))
+    cursor.execute("UPDATE role SET active = 0 WHERE id = ?", (id,))
 
     conn.commit()
     conn.close()

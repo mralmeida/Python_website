@@ -21,6 +21,7 @@
                 <th>Dept ID</th>
                 <th>Dept</th>
                 <th>Comment</th>
+                <th>Active</th>
                 <th>Edit</th>
             </tr>
             </thead>
@@ -37,6 +38,13 @@
                 <td>{{ cts[7] }}</td>
                 <td>{{ cts[8] }}</td>
                 <td>{{ cts[9] }}</td>
+                <td>
+                {% if cts[10] == 1 %}
+                    Active
+                {% else %}
+                    Inactive
+                {% endif %}
+                </td>
                 <td><a href="/edit/{{ cts[0] }}" class="edit-icon"><i class="bi bi-pencil-square"></i></a></td>
             </tr>
             {% endfor %}

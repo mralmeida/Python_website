@@ -35,7 +35,13 @@
             {{ form.comment.label }}
             {{ form.comment(rows=4, cols=40) }}
         </p>
+        <p>
+            {% if edit_mode %}
+                {{ form.active() }}
+                {{ form.active.label }}
 
+            {% endif %}
+        </p>
         <p>{{ form.submit() }}</p>
     </form>
  {% endblock %}
