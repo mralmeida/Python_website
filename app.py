@@ -149,9 +149,9 @@ def get_contacts():
     sql = """
     SELECT CTS.id, CTS.name, CTS.email, CTS.companyID, COMP.name, CTS.roleID, ROLE.name, CTS.departmentID, DEPT.name, CTS.obs, CTS.active  
     FROM contact CTS 
-    INNER JOIN company COMP ON CTS.companyID = COMP.id 
-    INNER JOIN role ROLE ON ROLE.id = CTS.roleID 
-    INNER JOIN department DEPT ON DEPT.id = CTS.departmentID
+    LEFT JOIN company COMP ON CTS.companyID = COMP.id 
+    LEFT JOIN role ROLE ON ROLE.id = CTS.roleID 
+    LEFT JOIN department DEPT ON DEPT.id = CTS.departmentID
     WHERE CTS.active = 1  
     ORDER BY CTS.name
     """
@@ -194,7 +194,7 @@ import csv
 import sqlite3
 from flask import render_template, request
 
-REQUIRED_COLUMNS = {"name", "email", "message"}
+REQUIRED_COLUMNS = {"name", "email", "comment"}
 
 
 def read_csv_file(file):
@@ -316,12 +316,13 @@ def insert_rows(rows):
         for row in rows:
 
             cursor.execute("""
-                INSERT INTO messages (name, email, message)
-                VALUES (?, ?, ?)
+                INSERT INTO contact (name, email, obs, active)
+                VALUES (?, ?, ?, ?)
             """, (
                 row["name"].strip(),
                 row["email"].strip(),
-                row["message"].strip()
+                row["comment"].strip(),
+                "0"
             ))
 
         conn.commit()
@@ -394,9 +395,9 @@ def edit_message(contact_id):
             SELECT      CTS.id, CTS.name, CTS.email, CTS.companyID, COMP.name,  
                         CTS.roleID, ROLE.name, CTS.departmentID, DEPT.name, CTS.obs, CTS.active 
             FROM        contact CTS
-                INNER JOIN company COMP ON CTS.companyID = COMP.id
-                INNER JOIN role ROLE ON ROLE.id = CTS.roleID
-                INNER JOIN department DEPT ON DEPT.id = CTS.departmentID
+                LEFT JOIN company COMP ON CTS.companyID = COMP.id
+                LEFT JOIN role ROLE ON ROLE.id = CTS.roleID
+                LEFT JOIN department DEPT ON DEPT.id = CTS.departmentID
             WHERE       CTS.id = ?
             ORDER BY    CTS.name
         """
