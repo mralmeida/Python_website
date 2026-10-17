@@ -1,30 +1,15 @@
 {% extends "base.html" %}
-
+{% block title %}Companies | ContactDesk{% endblock %}
 {% block content %}
-<h1>Companies ({{ count }})</h1>
-
-<p>
-    <a href="/company/new" class="new-icon" title="Add Company"><i class="bi bi-plus-circle-fill"></i></a><b>Add new Company</b>
-</p>
-
-<table id="contactsTable" class="datatable">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Edit</th>
-            <th>Delete</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for company in companies %}
-        <tr>
-            <td>{{ company[0] }}</td>
-            <td>{{ company[1] }}</td>
-            <td><a href="/company/edit/{{ company[0] }}" class="edit-icon"><i class="bi bi-pencil-square"></i></a></td>
-            <td><a href="/company/delete/{{ company[0] }}"><i class="bi bi-trash"></i></a></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="page-header">
+    <div><p class="page-eyebrow">Directory settings</p><h1>Companies <span class="text-secondary fs-5 fw-normal">({{ count }})</span></h1><p class="page-subtitle">Manage the companies available in your contact directory.</p></div>
+    <div class="page-actions"><a href="{{ url_for('company_new') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Add company</a></div>
+</div>
+<div class="table-panel"><div class="table-container">
+<table class="datatable table align-middle">
+<thead><tr><th>ID</th><th>Name</th><th>Actions</th></tr></thead><tbody>
+{% for item in companies %}
+<tr><td class="text-secondary">{{ item[0] }}</td><td class="fw-semibold">{{ item[1] }}</td><td class="d-flex gap-3"><a href="{{ url_for('company_edit', id=item[0]) }}" class="edit-icon" aria-label="Edit {{ item[1] }}" title="Edit"><i class="bi bi-pencil-square"></i></a><a href="{{ url_for('company_delete', id=item[0]) }}" class="delete-icon" aria-label="Deactivate {{ item[1] }}" title="Deactivate" onclick="return confirm('Deactivate this record? It will no longer appear in active lists.');"><i class="bi bi-person-dash"></i></a></td></tr>
+{% endfor %}
+</tbody></table></div></div>
 {% endblock %}

@@ -1,7 +1,23 @@
-<nav style="background:#eee; padding:10px;">
-    <a href="/contacts">Contacts</a> |
-    <a href="/companies">Companies</a> |
-    <a href="/departments">Departments</a> |
-    <a href="/roles">Roles</a> |
-    v20261011.1
-</nav>
+<header class="app-header">
+    <nav class="navbar navbar-expand-lg app-navbar" aria-label="Main navigation">
+        <div class="container-fluid nav-shell">
+            <a class="navbar-brand app-brand" href="{{ url_for('contacts') }}">
+                <span class="brand-mark"><i class="bi bi-person-lines-fill" aria-hidden="true"></i></span>
+                <span>Contact<span class="brand-light">Desk</span><small>Management workspace</small></span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavigation" aria-controls="mainNavigation" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNavigation">
+                <div class="navbar-nav ms-lg-5 me-auto">
+                    <a class="nav-link {% if request.endpoint in ['contacts', 'contact', 'edit_message'] %}active{% endif %}" href="{{ url_for('contacts') }}"><i class="bi bi-people" aria-hidden="true"></i> Contacts</a>
+                    <a class="nav-link {% if request.endpoint in ['companies', 'company_new', 'company_edit'] %}active{% endif %}" href="{{ url_for('companies') }}"><i class="bi bi-building" aria-hidden="true"></i> Companies</a>
+                    <a class="nav-link {% if request.endpoint in ['departments', 'department_new', 'department_edit'] %}active{% endif %}" href="{{ url_for('departments') }}"><i class="bi bi-diagram-3" aria-hidden="true"></i> Departments</a>
+                    <a class="nav-link {% if request.endpoint in ['roles', 'role_new', 'role_edit'] %}active{% endif %}" href="{{ url_for('roles') }}"><i class="bi bi-person-badge" aria-hidden="true"></i> Roles</a>
+                    <a class="nav-link {% if request.endpoint == 'import_csv' %}active{% endif %}" href="{{ url_for('import_csv') }}"><i class="bi bi-file-earmark-arrow-up" aria-hidden="true"></i> Import CSV</a>
+                </div>
+                <span class="nav-version">v20261017.1</span>
+            </div>
+        </div>
+    </nav>
+</header>

@@ -1,7 +1,5 @@
 {% extends "base.html" %}
+{% block title %}Import complete | ContactDesk{% endblock %}
 {% block content %}
-<h2>CSV imported successfully!</h2>
-<p>
-<button onclick="window.location.href='/messages'">Messages</button>
-</p>
+<div class="result-card panel"><div class="result-icon"><i class="bi bi-check-lg" aria-hidden="true"></i></div><p class="page-eyebrow">Data tools</p><h1 class="mb-2">CSV imported successfully</h1><p class="page-subtitle mb-4">{{ records_imported|default(0) }} record(s) imported.</p><a class="btn btn-primary" href="{{ url_for('import_csv') }}">Import another file</a></div>
 {% endblock %}

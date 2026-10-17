@@ -1,29 +1,11 @@
-<script>
-let seconds = 10;
-
-const timer = setInterval(function() {
-    seconds--;
-
-    document.getElementById("countdown").innerText = seconds;
-
-    if (seconds <= 0) {
-        clearInterval(timer);
-        window.location.href = "{{ url_for('contacts') }}";
-    }
-}, 1000);
-</script>
-
-{% extends "base.html" %} {% block content %}
-<b>Thank you!</b><br>
-Name: {{ name }}<br>
-Email: {{ email }}<br>
-Role: {{ role }}<br>
-Department: {{ department }}<br>
-Message: {{ comment }}<br>
-Your contact has been saved in the database.
-<p>
-    Redirecting in
-    <span id="countdown">10</span>
-    seconds...
-</p>
+{% extends "base.html" %}
+{% block title %}Contact saved | ContactDesk{% endblock %}
+{% block content %}
+<div class="result-card panel">
+    <div class="result-icon"><i class="bi bi-check-lg" aria-hidden="true"></i></div>
+    <p class="page-eyebrow">Saved successfully</p><h1 class="mb-2">Thank you!</h1><p class="page-subtitle mb-4">The contact has been saved to your database.</p>
+    <dl class="row mb-4"><dt class="col-sm-3 text-secondary fw-semibold">Name</dt><dd class="col-sm-9">{{ name }}</dd><dt class="col-sm-3 text-secondary fw-semibold">Email</dt><dd class="col-sm-9">{{ email }}</dd><dt class="col-sm-3 text-secondary fw-semibold">Role ID</dt><dd class="col-sm-9">{{ role }}</dd><dt class="col-sm-3 text-secondary fw-semibold">Department ID</dt><dd class="col-sm-9">{{ department }}</dd><dt class="col-sm-3 text-secondary fw-semibold">Comment</dt><dd class="col-sm-9">{{ comment or '—' }}</dd></dl>
+    <p class="text-secondary small">Returning to contacts in <span id="countdown">10</span> seconds…</p><a href="{{ url_for('contacts') }}" class="btn btn-primary">Go to contacts now</a>
+</div>
 {% endblock %}
+{% block scripts %}<script>let seconds = 10; const countdown = document.getElementById('countdown'); const timer = setInterval(() => { seconds -= 1; countdown.textContent = seconds; if (seconds <= 0) { clearInterval(timer); window.location.href = {{ url_for('contacts')|tojson }}; } }, 1000);</script>{% endblock %}

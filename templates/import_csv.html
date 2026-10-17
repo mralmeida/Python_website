@@ -1,28 +1,15 @@
-
 {% extends "base.html" %}
+{% block title %}Import CSV | ContactDesk{% endblock %}
 {% block content %}
-<h1>Import CSV</h1>
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <div style="color:red;">
-            <ul>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
-{% endwith %}
-
-<form method="POST" enctype="multipart/form-data">
-    <input type="file" name="csvfile" id="csvfile" accept=".csv">
-    <button type="submit" id="uploadBtn" disabled>Upload</button>
-</form>
-<script>
-document.getElementById('csvfile').addEventListener('change', function () {
-document.getElementById('uploadBtn').disabled = this.files.length === 0;
-});
-</script>
-<br><br><br>
-<a href="{{ url_for('static',filename='files/model.csv') }}"><img src="{{ url_for('static',filename='images/csv-icon.png') }}" alt="Download the template file here"></a>
-{% endblock %}}
+<div class="page-header"><div><p class="page-eyebrow">Data tools</p><h1>Import CSV</h1><p class="page-subtitle">Import message records from a CSV file.</p></div></div>
+<div class="form-panel file-upload-panel">
+    <div class="d-flex align-items-start gap-3 mb-4"><div class="brand-mark flex-shrink-0"><i class="bi bi-file-earmark-arrow-up" aria-hidden="true"></i></div><div><h2 class="h5 mb-1">Upload a CSV file</h2><p class="page-subtitle mt-0">Choose a UTF-8 CSV file that includes the required column headers.</p></div></div>
+    <form method="POST" enctype="multipart/form-data">
+        <label class="form-label" for="csvfile">CSV file</label><input class="form-control" type="file" name="csvfile" id="csvfile" accept=".csv,text/csv" required>
+        <p class="text-secondary small mt-2 mb-4">Use the provided template to keep the column structure consistent.</p>
+        <button class="btn btn-primary" type="submit" id="uploadBtn" disabled><i class="bi bi-upload me-1" aria-hidden="true"></i> Upload file</button>
+    </form>
+    <a class="csv-template" href="{{ url_for('static', filename='files/model.csv') }}"><img src="{{ url_for('static', filename='images/csv-icon.png') }}" alt=""><span><strong class="d-block text-dark">Download CSV template</strong><small class="text-secondary">Use this file as your starting point</small></span><i class="bi bi-download ms-3" aria-hidden="true"></i></a>
+</div>
+{% endblock %}
+{% block scripts %}<script>const csvInput = document.getElementById('csvfile'); const uploadButton = document.getElementById('uploadBtn'); csvInput.addEventListener('change', () => { uploadButton.disabled = csvInput.files.length === 0; });</script>{% endblock %}

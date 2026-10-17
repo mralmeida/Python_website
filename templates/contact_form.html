@@ -1,47 +1,20 @@
 {% extends "base.html" %}
+{% block title %}{% if edit_mode %}Edit contact{% else %}New contact{% endif %} | ContactDesk{% endblock %}
 {% block content %}
-<h1>
-    {% if edit_mode %} Edit Contact {% else %} Contact Form {% endif %}
-</h1>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-
-        <p>
-            {{ form.name.label }}
-            {{ form.name(size=40) }} {% for error in form.name.errors %} {{ error }} {% endfor %}
-        </p>
-
-        <p>
-            {{ form.email.label }}
-            {{ form.email(size=40) }} {% for error in form.email.errors %} {{ error }} {% endfor %}
-        </p>
-
-        <p>
-            {{ form.role.label }}
-            {{ form.role() }}
-        </p>
-
-        <p>
-            {{ form.department.label }}
-            {{ form.department() }}
-        </p>
-
-        <p>
-            {{ form.company.label }}
-            {{ form.company() }}
-        </p>
-
-        <p>
-            {{ form.comment.label }}
-            {{ form.comment(rows=4, cols=40) }}
-        </p>
-        <p>
-            {% if edit_mode %}
-                {{ form.active() }}
-                {{ form.active.label }}
-
-            {% endif %}
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
- {% endblock %}
+<div class="page-header"><div><p class="page-eyebrow">Directory management</p><h1>{% if edit_mode %}Edit contact{% else %}Add a contact{% endif %}</h1><p class="page-subtitle">{% if edit_mode %}Update the contact details below.{% else %}Enter the details to add someone to your directory.{% endif %}</p></div><a href="{{ url_for('contacts') }}" class="btn btn-outline-primary"><i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Back to contacts</a></div>
+<div class="form-panel">
+<form method="POST" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="mb-3"><label class="form-label" for="{{ form.name.id }}">{{ form.name.label.text }}</label>{{ form.name(class="form-control", placeholder="Full name", autocomplete="name") }}{% for error in form.name.errors %}<div class="field-errors mt-1">{{ error }}</div>{% endfor %}</div>
+    <div class="mb-3"><label class="form-label" for="{{ form.email.id }}">{{ form.email.label.text }}</label>{{ form.email(class="form-control", placeholder="name@example.com", autocomplete="email") }}{% for error in form.email.errors %}<div class="field-errors mt-1">{{ error }}</div>{% endfor %}</div>
+    <div class="row g-3">
+        <div class="col-md-6"><label class="form-label" for="{{ form.company.id }}">Company</label>{{ form.company(class="form-select") }}{% for error in form.company.errors %}<div class="field-errors mt-1">{{ error }}</div>{% endfor %}</div>
+        <div class="col-md-6"><label class="form-label" for="{{ form.role.id }}">Role</label>{{ form.role(class="form-select") }}{% for error in form.role.errors %}<div class="field-errors mt-1">{{ error }}</div>{% endfor %}</div>
+        <div class="col-md-6"><label class="form-label" for="{{ form.department.id }}">Department</label>{{ form.department(class="form-select") }}{% for error in form.department.errors %}<div class="field-errors mt-1">{{ error }}</div>{% endfor %}</div>
+        <div class="col-12"><label class="form-label" for="{{ form.comment.id }}">Comment</label>{{ form.comment(class="form-control", rows="4", placeholder="Add an optional note…") }}{% for error in form.comment.errors %}<div class="field-errors mt-1">{{ error }}</div>{% endfor %}</div>
+        {% if edit_mode %}<div class="col-12"><div class="form-check">{{ form.active(class="form-check-input") }}<label class="form-check-label" for="{{ form.active.id }}">{{ form.active.label.text }}</label></div></div>{% endif %}
+    </div>
+    <div class="d-flex flex-wrap gap-2 mt-4">{{ form.submit(class="btn btn-primary", value="Save changes" if edit_mode else "Save contact") }}<a href="{{ url_for('contacts') }}" class="btn btn-light border">Cancel</a></div>
+</form>
+</div>
+{% endblock %}
